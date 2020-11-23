@@ -41,6 +41,8 @@ def gradient_descent_mse(n, xs, ys, m, c, alpha_m, alpha_c, iters=100):
 
 n = 10
 
+open_channel_with_return(0)
+
 xs = Array(n, sfix)
 @for_range(n)
 def body(i):
@@ -50,6 +52,8 @@ ys = Array(n, sfix)
 @for_range(n)
 def body(i):
     ys[i] = sfix(sint.get_private_input_from(1))
+
+close_channel(0)
 
 m, c = gradient_descent_mse(10, xs, ys, MemValue(sfix(0.0)), MemValue(sfix(0.0)), cfix(0.0001), cfix(0.01), 20)
 print_ln("\n\tOUTPUT: m: %s, c: %s", m.read().reveal(), c.read().reveal())
