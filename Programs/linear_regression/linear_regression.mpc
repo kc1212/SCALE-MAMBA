@@ -16,7 +16,7 @@ def dfdm(n, inner, xs, reg):
     reg.write(reg.read() * (-2.0/n))
 
 
-def gradient_descent_mse(n, xs, ys, m, c, alpha_m, alpha_c, iters=100):
+def gradient_descent_mse(n, xs, ys, m, c, alpha, iters=100):
     """
     Gradient descent algorithm for the mean squared error
     f(m, c) = (1/n) * sum(yi - (m * xi + c))^2
@@ -33,8 +33,8 @@ def gradient_descent_mse(n, xs, ys, m, c, alpha_m, alpha_c, iters=100):
             inner[j] = ys[j] - (m.read()*xs[j] + c.read())
         dfdm(n, inner, xs, tmp_m)
         dfdc(n, inner, tmp_c)
-        m.write(m.read() - alpha_m*tmp_m)
-        c.write(c.read() - alpha_c*tmp_c)
+        m.write(m.read() - alpha*tmp_m)
+        c.write(c.read() - alpha*tmp_c)
 
     return m, c
 
@@ -55,5 +55,5 @@ def body(i):
 
 close_channel(0)
 
-m, c = gradient_descent_mse(10, xs, ys, MemValue(sfix(0.0)), MemValue(sfix(0.0)), cfix(0.0001), cfix(0.01), 20)
+m, c = gradient_descent_mse(10, xs, ys, MemValue(sfix(0.0)), MemValue(sfix(5.0)), cfix(0.0002), 10)
 print_ln("\n\tOUTPUT: m: %s, c: %s", m.read().reveal(), c.read().reveal())

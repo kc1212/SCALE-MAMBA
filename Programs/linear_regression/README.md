@@ -6,10 +6,10 @@ So an additional step is needed to convert the data using the `float_to_int.py` 
 In practice, this step can be achieved using the command below from the project root directory.
 ```
 # player 0
-cat Programs/linear_regression/x_data.txt | ./Programs/linear_regression/float_to_int.py | ./build/Player.x 0 Programs/linear_regression/
+cat Programs/linear_regression/x_data.txt | ./Programs/linear_regression/float_to_int.py | ./build/Player.x 0 -dOT Programs/linear_regression/
 # player 1
-cat Programs/linear_regression/y_data.txt | ./Programs/linear_regression/float_to_int.py |  ./build/Player.x 1 Programs/linear_regression/
+cat Programs/linear_regression/y_data.txt | ./Programs/linear_regression/float_to_int.py |  ./build/Player.x 1 -dOT Programs/linear_regression/
 # player 2
-./build/Player.x 2 Programs/linear_regression/
+./build/Player.x 2 -dOT Programs/linear_regression/
 ```
 
