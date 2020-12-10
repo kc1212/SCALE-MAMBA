@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sys
-
+import matplotlib.pyplot as plt
 
 def gradient_descent_mse(xs, ys, m = 0.0, c = 5.0, alpha=0.00001, iters=1000):
     """
@@ -24,15 +24,31 @@ def gradient_descent_mse(xs, ys, m = 0.0, c = 5.0, alpha=0.00001, iters=1000):
     return (m, c)
 
 
-def read_stdin(n=10):
+def read_stdin(total_lines=100):
     out = []
-    for _ in range(n):
+    for _ in range(total_lines):
         out.append(float(sys.stdin.readline()))
     return out
 
 
 if __name__ == "__main__":
-    xs = read_stdin()
-    ys = read_stdin()
-    print(gradient_descent_mse(xs, ys, alpha=0.0002, iters=10))
+    n = 10
+    xs = read_stdin()[:n]
+    ys = read_stdin()[:n]
+    start_m = 0
+    start_c = 5
+    m, c = gradient_descent_mse(xs, ys, m=start_m, c=start_c, alpha=0.0002, iters=10)
+
+    fig, ax = plt.subplots()
+    ax.scatter(xs, ys)
+    ax.plot([0, max(xs)], [x*m + c for x in [0, max(xs)]], 'r', label='End')
+    ax.plot([0, max(xs)], [x*start_m + start_c for x in [0, max(xs)]], 'g', label='Start')
+    ax.set_ylim(ymin=0)
+    ax.set_xlim(xmin=0)
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_title('Linear regression demo')
+    ax.legend()
+    ax.grid()
+    plt.show()
 
