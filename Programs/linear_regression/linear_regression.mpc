@@ -1,38 +1,50 @@
-def dfdc(n, inner, reg):
-    # lambda inner: (-2/n)*sum(inner)
+"""
+This file the demo reference.
+During the demo we'll start with the reference.py file.
+Then slowly convert it to a .mpc file and then run it in SCALE.
+The conversion will follow the following steps.
+1. Setup open_channel_with_return/close_channel
+2. Setup arrays for holding xs and ys
+3. Read the input, remember to convert it to sfix
+4. Update the gradient_descent_mse function to take MemValue for m/c and cfix for alpha
+5. Write the print function to show the results
+6. Convert dfdc and dfdm (use register, write for_range)
+7. Convert gradient_descent_mse in a similar way
+8. Add start_timer/stop_timer
+9. Compile to make sure nothing is wrong
+10. Briefly show the float_to_int script
+11. Run in SCALE
+"""
+
+
+def dfdc(n, zs, reg):
     reg.write(sfix(0))
     @for_range(n)
     def body(i):
-        reg.write(reg.read() + inner[i])
+        reg.write(reg.read() + zs[i])
     reg.write(reg.read() * (-2.0/n))
 
 
-def dfdm(n, inner, xs, reg):
-    # lambda inner: (-2/n)*sum([t*x for (t, x) in zip(inner, xs)])
+def dfdm(n, zs, xs, reg):
     reg.write(sfix(0))
     @for_range(n)
     def body(i):
-        reg.write(reg.read() + inner[i]*xs[i])
+        reg.write(reg.read() + zs[i]*xs[i])
     reg.write(reg.read() * (-2.0/n))
 
 
-def gradient_descent_mse(n, xs, ys, m, c, alpha, iters=100):
-    """
-    Gradient descent algorithm for the mean squared error
-    f(m, c) = (1/n) * sum(yi - (m * xi + c))^2
-    """
-
+def gradient_descent_mse(n, xs, ys, m, c, alpha, iters):
     tmp_m = MemValue(sfix(0))
     tmp_c = MemValue(sfix(0))
-    inner = Array(n, sfix) # for computing ys[i] - (m*xs[i] + c)
+    zs = Array(n, sfix) # for computing ys[i] - (m*xs[i] + c)
 
     @for_range(iters)
     def body(i):
         @for_range(n)
         def inner_body(j):
-            inner[j] = ys[j] - (m.read()*xs[j] + c.read())
-        dfdm(n, inner, xs, tmp_m)
-        dfdc(n, inner, tmp_c)
+            zs[j] = ys[j] - (m.read()*xs[j] + c.read())
+        dfdm(n, zs, xs, tmp_m)
+        dfdc(n, zs, tmp_c)
         m.write(m.read() - alpha*tmp_m)
         c.write(c.read() - alpha*tmp_c)
 
@@ -40,6 +52,8 @@ def gradient_descent_mse(n, xs, ys, m, c, alpha, iters=100):
 
 
 n = 10
+
+start_timer(0)
 
 open_channel_with_return(0)
 
@@ -55,5 +69,7 @@ def body(i):
 
 close_channel(0)
 
-m, c = gradient_descent_mse(10, xs, ys, MemValue(sfix(0.0)), MemValue(sfix(5.0)), cfix(0.0002), 10)
-print_ln("\n\tOUTPUT: m: %s, c: %s", m.read().reveal(), c.read().reveal())
+m, c = gradient_descent_mse(n, xs, ys, MemValue(sfix(0.0)), MemValue(sfix(5.0)), cfix(0.0002), 10)
+print_ln("\n\tm: %s, c: %s", m.read().reveal(), c.read().reveal())
+
+stop_timer(0)
